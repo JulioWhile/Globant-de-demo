@@ -15,11 +15,11 @@ def get_db():
         db.close()
 
 @app.post("/departments/", response_model=schemas.Department)
-def create_department(department: schemas.Department, db: Session = Depends(get_db)):
+def create_department(department: schemas.DepartmentCreate, db: Session = Depends(get_db)):
     return crud.create_department(db=db, department=department)
 
 @app.post("/jobs/", response_model=schemas.Job)
-def create_job(job: schemas.Job, db: Session = Depends(get_db)):
+def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
     return crud.create_job(db=db, job=job)
 
 @app.post("/employees/", response_model=schemas.HiredEmployee)

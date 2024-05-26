@@ -1,7 +1,7 @@
+from datetime import datetime as _datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
-from datetime import datetime as _datetime, timezone
 
 
 class Department(BaseModel):
@@ -21,16 +21,13 @@ class Job(BaseModel):
 class DepartmentCreate(BaseModel):
     department: str = Field(..., max_length=100)
 
-
 class JobCreate(BaseModel):
     job: str = Field(..., max_length=100)
-
 
 class HiredEmployeeBase(BaseModel):
     name: str = Field(..., max_length=100)
     department_id: int
     job_id: Optional[int]
-
 
 class HiredEmployeeCreate(HiredEmployeeBase):
     id: int
@@ -44,7 +41,6 @@ class HiredEmployeeCreate(HiredEmployeeBase):
         if value > _datetime.now(timezone.utc):
             raise ValueError("Hired datetime cannot be in the future")
         return value
-
 
 class HiredEmployee(HiredEmployeeBase):
     id: int

@@ -25,6 +25,10 @@ def create_job(db: Session, job: schemas.JobCreate):
     return db_job
 
 def create_employee(db: Session, employee: schemas.HiredEmployeeCreate):
+    db_employee = get_employee(db, employee_id=employee.id)
+    if db_employee:
+        raise ValueError(f"Employee with id {employee.id} already exists")
+
     db_employee = models.HiredEmployee(**employee.dict())
     db.add(db_employee)
     db.commit()
