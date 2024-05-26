@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from .database import Base
 
 class Department(Base):
     __tablename__ = "departments"
@@ -25,7 +23,7 @@ class HiredEmployee(Base):
     name = Column(String, nullable=False)
     datetime = Column(DateTime, nullable=False)
     department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
-    job_id = Column(Integer, ForeignKey("jobs.id"), nullable=False)
+    job_id = Column(Integer, ForeignKey("jobs.id"), nullable=True)
 
     department = relationship("Department", back_populates="employees")
     job = relationship("Job", back_populates="employees")
