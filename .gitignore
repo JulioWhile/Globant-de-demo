@@ -1,2 +1,12 @@
 .idea/
 .env
+
+# Ignore all __pycache__ directories
+__pycache__/
+app/__pycache__/
+
+# Ignore all .pyc files
+*.pyc
+
+# Unignore a specific .pyc file
+!app/__pycache__/crud.cpython-310.pyc
