@@ -1,6 +1,8 @@
+from typing import List
+
 from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
-from typing import List
+
 from app import crud, models, schemas, utils
 from app.database import SessionLocal, engine
 
@@ -8,6 +10,7 @@ from app.database import SessionLocal, engine
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
 
 # Dependency to get DB session
 def get_db():
@@ -17,6 +20,7 @@ def get_db():
     finally:
         db.close()
 
+
 @app.post("/employees/", response_model=schemas.HiredEmployee)
 def create_employee(employee: schemas.HiredEmployeeCreate, db: Session = Depends(get_db)):
     try:
@@ -24,6 +28,7 @@ def create_employee(employee: schemas.HiredEmployeeCreate, db: Session = Depends
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return db_employee
+
 
 @app.post("/employees/batch/")
 def create_employees_batch(employees: List[schemas.HiredEmployeeCreate], db: Session = Depends(get_db)):
@@ -43,6 +48,7 @@ def create_employees_batch(employees: List[schemas.HiredEmployeeCreate], db: Ses
         "failed_inserts": failed_inserts
     }
 
+
 @app.post("/departments/", response_model=schemas.Department)
 def create_department(department: schemas.DepartmentCreate, db: Session = Depends(get_db)):
     try:
@@ -50,6 +56,26 @@ def create_department(department: schemas.DepartmentCreate, db: Session = Depend
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return db_department
+
+
+@app.post("/departments/batch/")
+def create_departments_batch(departments: List[schemas.DepartmentCreate], db: Session = Depends(get_db)):
+    successful_inserts = []
+    failed_inserts = []
+
+    for department in departments:
+        try:
+            db_departments = crud.create_department(db, department)
+            successful_inserts.append(db_departments)
+        except ValueError as e:
+            failed_inserts.append({"department": department.dict(), "error": str(e)})
+
+    return {
+        "status": "Batch insert completed",
+        "successful_inserts": len(successful_inserts),
+        "failed_inserts": failed_inserts
+    }
+
 
 @app.post("/jobs/", response_model=schemas.Job)
 def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
@@ -59,6 +85,26 @@ def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=str(e))
     return db_job
 
+
+@app.post("/jobs/batch/")
+def create_jobs_batch(jobs: List[schemas.JobCreate], db: Session = Depends(get_db)):
+    successful_inserts = []
+    failed_inserts = []
+
+    for job in jobs:
+        try:
+            db_departments = crud.create_job(db, job)
+            successful_inserts.append(db_departments)
+        except ValueError as e:
+            failed_inserts.append({"job": job.dict(), "error": str(e)})
+
+    return {
+        "status": "Batch insert completed",
+        "successful_inserts": len(successful_inserts),
+        "failed_inserts": failed_inserts
+    }
+
+
 @app.post("/backup/")
 def backup_tables():
     try:
@@ -66,6 +112,7 @@ def backup_tables():
         return {"status": "Backup completed"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/restore/")
 def restore_tables():
