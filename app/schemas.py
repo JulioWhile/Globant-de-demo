@@ -11,6 +11,7 @@ class Department(BaseModel):
     class Config:
         from_attributes = True
 
+
 class Job(BaseModel):
     id: int
     job: str
@@ -18,16 +19,20 @@ class Job(BaseModel):
     class Config:
         from_attributes = True
 
+
 class DepartmentCreate(BaseModel):
     department: str = Field(..., max_length=100)
 
+
 class JobCreate(BaseModel):
     job: str = Field(..., max_length=100)
+
 
 class HiredEmployeeBase(BaseModel):
     name: str = Field(..., max_length=100)
     department_id: int
     job_id: Optional[int]
+
 
 class HiredEmployeeCreate(HiredEmployeeBase):
     id: int
@@ -41,6 +46,7 @@ class HiredEmployeeCreate(HiredEmployeeBase):
         if value > _datetime.now(timezone.utc):
             raise ValueError("Hired datetime cannot be in the future")
         return value
+
 
 class HiredEmployee(HiredEmployeeBase):
     id: int

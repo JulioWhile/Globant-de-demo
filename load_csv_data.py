@@ -1,11 +1,13 @@
 import pandas as pd
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
-from app.database import SessionLocal, engine
+
 from app import models, schemas, crud
+from app.database import SessionLocal, engine
 
 # Create the database tables
 models.Base.metadata.create_all(bind=engine)
+
 
 def load_departments(db: Session, csv_file: str):
     df = pd.read_csv(csv_file, header=None, names=["id", "department"], dtype={"id": int})
@@ -18,6 +20,7 @@ def load_departments(db: Session, csv_file: str):
         department = schemas.DepartmentCreate(department=row["department"])
         crud.create_department(db=db, department=department)
 
+
 def load_jobs(db: Session, csv_file: str):
     df = pd.read_csv(csv_file, header=None, names=["id", "job"], dtype={"id": int})
 
@@ -29,8 +32,10 @@ def load_jobs(db: Session, csv_file: str):
         job = schemas.JobCreate(job=row['job'])
         crud.create_job(db=db, job=job)
 
+
 def load_employees(db: Session, csv_file: str):
-    df = pd.read_csv(csv_file, header=None, names=["id", "name", "datetime", "department_id", "job_id"], dtype={"id": int})
+    df = pd.read_csv(csv_file, header=None, names=["id", "name", "datetime", "department_id", "job_id"],
+                     dtype={"id": int})
 
     # Debugging: Print the first few rows of the dataframe
     print("Hired Employees DataFrame:")
@@ -61,6 +66,7 @@ def load_employees(db: Session, csv_file: str):
         except ValueError as e:
             print(f"Value error for row {row['id']}: {e}")
 
+
 def main():
     db: Session = SessionLocal()
     try:
@@ -70,5 +76,6 @@ def main():
     finally:
         db.close()
 
+
 if __name__ == "__main__":
-       main()
+    main()

@@ -46,6 +46,7 @@ department_schema = avro.schema.Parse(json.dumps(department_schema_dict))
 job_schema = avro.schema.Parse(json.dumps(job_schema_dict))
 hired_employee_schema = avro.schema.Parse(json.dumps(hired_employee_schema_dict))
 
+
 def backup_table_to_avro(table, schema):
     db = SessionLocal()
     try:
@@ -55,7 +56,8 @@ def backup_table_to_avro(table, schema):
             writer = avro.datafile.DataFileWriter(out, avro.io.DatumWriter(), schema)
             for row in data:
                 # Filter out SQLAlchemy internal attributes and convert datetime to string
-                filtered_row = {k: (v.isoformat() if isinstance(v, datetime) else v) for k, v in row.__dict__.items() if not k.startswith('_')}
+                filtered_row = {k: (v.isoformat() if isinstance(v, datetime) else v) for k, v in row.__dict__.items() if
+                                not k.startswith('_')}
                 logging.info(f"Backing up record: {filtered_row}")
                 writer.append(filtered_row)
             writer.close()
@@ -63,6 +65,7 @@ def backup_table_to_avro(table, schema):
         return file_path
     finally:
         db.close()
+
 
 def restore_table_from_avro(table, schema):
     db = SessionLocal()
@@ -91,12 +94,14 @@ def restore_table_from_avro(table, schema):
     finally:
         db.close()
 
+
 def backup_all_tables():
     logging.info("Starting backup of all tables.")
     backup_table_to_avro(Department, department_schema)
     backup_table_to_avro(Job, job_schema)
     backup_table_to_avro(HiredEmployee, hired_employee_schema)
     logging.info("Backup of all tables completed.")
+
 
 def restore_all_tables():
     logging.info("Starting restore of all tables.")

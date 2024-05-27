@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
+
 from .database import Base
+
 
 class Department(Base):
     __tablename__ = "departments"
@@ -9,12 +11,14 @@ class Department(Base):
     department = Column(String, nullable=False)
     employees = relationship("HiredEmployee", back_populates="department")
 
+
 class Job(Base):
     __tablename__ = "jobs"
 
     id = Column(Integer, primary_key=True, index=True)
     job = Column(String, nullable=False)
     employees = relationship("HiredEmployee", back_populates="job")
+
 
 class HiredEmployee(Base):
     __tablename__ = "hired_employees"
