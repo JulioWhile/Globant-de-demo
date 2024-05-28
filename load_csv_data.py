@@ -29,7 +29,7 @@ def load_jobs(db: Session, csv_file: str):
     print(df.head())
 
     for _, row in df.iterrows():
-        job = schemas.JobCreate(job=row['job'])
+        job = schemas.JobCreate(job=row["job"])
         crud.create_job(db=db, job=job)
 
 
@@ -43,20 +43,13 @@ def load_employees(db: Session, csv_file: str):
 
     for _, row in df.iterrows():
         try:
-            # Handle NaN values for job_id
-            # job_id = row['job_id']
-            # if pd.isna(job_id) or not isinstance(job_id, (int, float)):
-            #     job_id = 0
-            # else:
-            #     job_id = int(job_id)
-
             # Create an instance of the Pydantic schema
             employee_data = schemas.HiredEmployeeCreate(
-                id=row['id'],
-                name=row['name'],
-                datetime=row['datetime'],
-                department_id=row['department_id'],
-                job_id=row['job_id']
+                id=row["id"],
+                name=row["name"],
+                datetime=row["datetime"],
+                department_id=row["department_id"],
+                job_id=row["job_id"]
             )
 
             # Use the CRUD function to create the employee in the database
