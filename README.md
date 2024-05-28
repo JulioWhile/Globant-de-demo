@@ -37,6 +37,36 @@ provides functionality for backing up and restoring data using AVRO format, as w
 - Avro
 - Fastavro
 
+## Project Structure
+
+```css
+globant-demo
+│
+├── app
+│ ├── __init__.py
+│ ├── crud.py
+│ ├── database.py
+│ ├── models.py
+│ ├── schemas.py
+│ └── utils.py
+│
+├── main.py
+├── read_avro.py
+├── README.md
+└── pyproject.toml
+```
+
+- `app/`: Contains the main application files.
+    - `crud.py`: Contains the CRUD operations.
+    - `database.py`: Database setup and session management.
+    - `models.py`: SQLAlchemy models.
+    - `schemas.py`: Pydantic models (schemas).
+    - `utils.py`: Utility functions for backup and restore.
+- `main.py`: Entry point for the FastAPI application.
+- `read_avro.py`: Script to read AVRO files.
+- `README.md`: Project documentation.
+- `pyproject.toml`: Poetry configuration file.
+
 ## Installation
 
 1. Clone the repository:
@@ -55,6 +85,7 @@ provides functionality for backing up and restoring data using AVRO format, as w
 3. Set up the database:
 
     - Configure your database settings in `app/database.py`.
+    - You should be already running the server.
     - Create the database tables:
 
       ```sh
@@ -70,6 +101,22 @@ Start the FastAPI server using Uvicorn:
 ```sh
 poetry run uvicorn main:app --reload
 ```
+
+### Backup and Restore
+
+- **Backup all tables:**
+
+  ```sh
+  curl -X POST "http://127.0.0.1:8000/backup/"
+  ```
+
+- **Restore all tables:**
+
+  ```sh
+  curl -X POST "http://127.0.0.1:8000/restore/"
+  ```
+
+The backup files are saved in the `backups` directory in AVRO format.
 
 ### API Endpoints
 
@@ -148,22 +195,6 @@ Example request for creating multiple employees:
 ]
 ```
 
-### Backup and Restore
-
-- **Backup all tables:**
-
-  ```sh
-  curl -X POST "http://127.0.0.1:8000/backup/"
-  ```
-
-- **Restore all tables:**
-
-  ```sh
-  curl -X POST "http://127.0.0.1:8000/restore/"
-  ```
-
-The backup files are saved in the `backups` directory in AVRO format.
-
 ### Reading AVRO Files
 
 Use the `read_avro.py` script to read and print the contents of AVRO files:
@@ -173,36 +204,6 @@ Use the `read_avro.py` script to read and print the contents of AVRO files:
    ```sh
    poetry run python read_avro.py backups/<avro_file_name>.avro
    ```
-
-## Project Structure
-
-```css
-globant-demo
-│
-├── app
-│ ├── __init__.py
-│ ├── crud.py
-│ ├── database.py
-│ ├── models.py
-│ ├── schemas.py
-│ └── utils.py
-│
-├── main.py
-├── read_avro.py
-├── README.md
-└── pyproject.toml
-```
-
-- `app/`: Contains the main application files.
-    - `crud.py`: Contains the CRUD operations.
-    - `database.py`: Database setup and session management.
-    - `models.py`: SQLAlchemy models.
-    - `schemas.py`: Pydantic models (schemas).
-    - `utils.py`: Utility functions for backup and restore.
-- `main.py`: Entry point for the FastAPI application.
-- `read_avro.py`: Script to read AVRO files.
-- `README.md`: Project documentation.
-- `pyproject.toml`: Poetry configuration file.
 
 ## License
 
