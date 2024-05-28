@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas, utils
 from app.database import SessionLocal, engine
+from app.config import settings  # Import settings
 
 # Create the database tables
 models.Base.metadata.create_all(bind=engine)
@@ -30,22 +31,33 @@ def create_employee(employee: schemas.HiredEmployeeCreate, db: Session = Depends
     return db_employee
 
 
+def process_in_batches(db, items, model, batch_size):
+    total = len(items)
+    successful_inserts = 0
+
+    for i in range(0, total, batch_size):
+        batch = items[i:i + batch_size]
+        try:
+            db_items = [model(**item.dict()) for item in batch]
+            db.add_all(db_items)
+            db.commit()
+            successful_inserts += len(db_items)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=400, detail=str(e))
+
+    return successful_inserts
+
+
 @app.post("/employees/batch/")
 def create_employees_batch(employees: List[schemas.HiredEmployeeCreate], db: Session = Depends(get_db)):
-    successful_inserts = []
-    failed_inserts = []
-
-    for employee in employees:
-        try:
-            db_employee = crud.create_employee(db, employee)
-            successful_inserts.append(db_employee)
-        except ValueError as e:
-            failed_inserts.append({"employee": employee.dict(), "error": str(e)})
+    batch_size = settings.BATCH_SIZE
+    successful_inserts = process_in_batches(db, employees, models.HiredEmployee, batch_size)
 
     return {
         "status": "Batch insert completed",
-        "successful_inserts": len(successful_inserts),
-        "failed_inserts": failed_inserts
+        "successful_inserts": successful_inserts,
+        "failed_inserts": len(employees) - successful_inserts
     }
 
 
@@ -60,20 +72,13 @@ def create_department(department: schemas.DepartmentCreate, db: Session = Depend
 
 @app.post("/departments/batch/")
 def create_departments_batch(departments: List[schemas.DepartmentCreate], db: Session = Depends(get_db)):
-    successful_inserts = []
-    failed_inserts = []
-
-    for department in departments:
-        try:
-            db_departments = crud.create_department(db, department)
-            successful_inserts.append(db_departments)
-        except ValueError as e:
-            failed_inserts.append({"department": department.dict(), "error": str(e)})
+    batch_size = settings.BATCH_SIZE
+    successful_inserts = process_in_batches(db, departments, models.Department, batch_size)
 
     return {
         "status": "Batch insert completed",
-        "successful_inserts": len(successful_inserts),
-        "failed_inserts": failed_inserts
+        "successful_inserts": successful_inserts,
+        "failed_inserts": len(departments) - successful_inserts
     }
 
 
@@ -88,20 +93,13 @@ def create_job(job: schemas.JobCreate, db: Session = Depends(get_db)):
 
 @app.post("/jobs/batch/")
 def create_jobs_batch(jobs: List[schemas.JobCreate], db: Session = Depends(get_db)):
-    successful_inserts = []
-    failed_inserts = []
-
-    for job in jobs:
-        try:
-            db_departments = crud.create_job(db, job)
-            successful_inserts.append(db_departments)
-        except ValueError as e:
-            failed_inserts.append({"job": job.dict(), "error": str(e)})
+    batch_size = settings.BATCH_SIZE
+    successful_inserts = process_in_batches(db, jobs, models.Job, batch_size)
 
     return {
         "status": "Batch insert completed",
-        "successful_inserts": len(successful_inserts),
-        "failed_inserts": failed_inserts
+        "successful_inserts": successful_inserts,
+        "failed_inserts": len(jobs) - successful_inserts
     }
 
 
